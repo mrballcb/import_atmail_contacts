@@ -14,7 +14,9 @@ immediately exit on subsequent logins because it detects contacts.
 
 - Make sure you have installed the necessary PDO modules for your database
 
-- Place the import_atmail_contacts directory in the Roundcube plugins/ directory
+- Make a Roundcube plugin directory: plugins/import_atmail_contacts/
+
+- Place the import_atmail_contacts.php script into this subdirectory
 
 - Enable the plugin in config/main.inc.php
 
