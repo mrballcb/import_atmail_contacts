@@ -11,6 +11,8 @@
  *  $rcmail_config['atmail_dsn']  = 'pgsql:host=db.example.com;dbname=atmail';
  *  $rcmail_config['atmail_user'] = 'atmail';
  *  $rcmail_config['atmail_pass'] = 'password';
+ *  // Optional, defaults to true for Abook_X / AbookGroup_X table names
+ *  $rcmail_config['atmail_hashed_tables'] = true | false;
  *
  * You can configure two optional debugging settings in main.inc.php:
  *
@@ -47,6 +49,7 @@ class import_atmail_contacts extends rcube_plugin
         $db_dsn  = $this->rc->config->get('atmail_dsn');
         $db_user = $this->rc->config->get('atmail_user');
         $db_pass = $this->rc->config->get('atmail_pass');
+        $hashed_tables = $this->rc->config->get('atmail_hashed_tables', true);
 
         try {
             $db = new PDO($db_dsn, $db_user, $db_pass);
@@ -57,8 +60,10 @@ class import_atmail_contacts extends rcube_plugin
         $uid = strtolower($this->rc->user->get_username());
 
         // First we migrate all contacts
-        $table = "Abook_" .
-                 (preg_match('/[a-z]/',$uid[0]) ? $uid[0] : 'other');
+        $table = $hashed_tables ?
+                 ("Abook_" .
+                   (preg_match('/[a-z]/',$uid[0]) ? $uid[0] : 'other')) :
+                 "Abook";
         $sth = $db->prepare('SELECT UserFirstName, UserLastName, UserMiddleName, '.
                             'UserEmail,UserEmail2,UserEmail3,UserEmail4,UserEmail5,'.
                             'UserHomeAddress, UserHomeCity, UserHomeState, '.
@@ -130,8 +135,10 @@ class import_atmail_contacts extends rcube_plugin
         }
 
         // Second we migrate all the groups
-        $table = "AbookGroup_" .
-                 (preg_match('/[a-z]/',$uid[0]) ? $uid[0] : 'other');
+        $table = $hashed_tables ?
+                 ("AbookGroup_" .
+                   (preg_match('/[a-z]/',$uid[0]) ? $uid[0] : 'other')) :
+                 "AbookGroup";
         $sth = $db->prepare('SELECT GroupName, GroupEmail '.
                             'FROM '.$table.' WHERE Account = :uid');
         $sth->bindParam(':uid', $uid);
