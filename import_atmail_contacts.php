@@ -35,6 +35,11 @@ class import_atmail_contacts extends rcube_plugin
 
     function init()
     {
+        $this->add_hook('user_create', array($this, 'trigger_atmail_abook_import'));
+    }
+
+    function trigger_atmail_abook_import()
+    {
         $this->add_hook('login_after', array($this, 'fetch_atmail_objects'));
     }
 
@@ -58,6 +63,7 @@ class import_atmail_contacts extends rcube_plugin
         }
 
         $uid = strtolower($this->rc->user->get_username());
+        rcube::write_log('login', "Importing addressbook for $uid");
 
         // First we migrate all contacts
         $table = $hashed_tables ?
